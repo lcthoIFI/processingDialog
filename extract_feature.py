@@ -44,11 +44,26 @@ def extract():
         int(explained_variance * 100)))
 
     # Do action clustering
-    n_cluster = 10
-    km = MiniBatchKMeans(n_clusters= n_cluster, init='k-means++', n_init=1,
-                         init_size=1000, batch_size=1000, )
+    n_cluster = 3
+    # km = MiniBatchKMeans(n_clusters= n_cluster, init='k-means++', n_init=1,
+    #                      init_size=1000, batch_size=1000, )
+
+    km = KMeans(n_clusters=3, init='k-means++', max_iter=100, n_init=1)
     km.fit(X)
-    print(km)
+    #print(km)
+
+    # if opts.n_components:
+    original_space_centroids = svd.inverse_transform(km.cluster_centers_)
+    order_centroids = original_space_centroids.argsort()[:, ::-1]
+    # else:
+    #order_centroids = km.cluster_centers_.argsort()[:, ::-1]
+
+    terms = vectorizer.get_feature_names()
+    for i in range(3):
+        print("Cluster %d:" % i, end='')
+        for ind in order_centroids[i]:
+            print(' %s' % terms[ind], end='')
+        print()
 
 if __name__ == "__main__":
     ## Do action extract
