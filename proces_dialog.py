@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
-from distutils.command.check import check
-
 from dateutil.parser import parse
-from os import listdir
-from os.path import isfile, join
 import os
 
 def isTimeFormat(input):
@@ -35,15 +31,33 @@ def correctSentenceQA(Ldialog):
         for id in range(len(item)):
             splittext = item[id].split('\t')
             ##
+            #simulair = 0
             splitTextNext = []
             if id < len(item) - 1:
                 splitTextNext = item[id + 1].split('\t')
+                #if splittext[1]
+            if id > 0:
+                splitTextPre = item[id -1].split('\t')
+
             if isTimeFormat(splittext[0]):
-                sentence = item[id]
-                if id == len(item) - 1 or ( splitTextNext != [] and isTimeFormat(splitTextNext[0])):
+                if id == len(item) - 1:
+                    sentence = item[id]
                     sentenceSplit = sentence.split('\t')
                     listdialog.append(checkStringTime(sentenceSplit))
                     sentence = ''
+                elif splitTextNext != [] and isTimeFormat(splitTextNext[0]):
+                    if splitTextNext[1].strip() == splittext[1].strip():
+                        ## TODO
+                        if len(splitTextPre) > 1 and splittext[1] == splitTextPre[1]:
+                            sentence = sentence + ' ' + splittext[2]
+                        else: sentence = item[id]
+                    else:
+                        sentence = item[id]
+                        sentenceSplit = sentence.split('\t')
+                        listdialog.append(checkStringTime(sentenceSplit))
+                        sentence = ''
+                else:
+                    sentence = item[id]
             else:
                 sentence = sentence + ' ' + item[id]
                 #if id < len(item) - 1:
@@ -54,6 +68,7 @@ def correctSentenceQA(Ldialog):
         listDialogTotal.append(listdialog)
         listdialog = []
     return listDialogTotal
+
 
 def read_data(fileName):
     listNameData = []
